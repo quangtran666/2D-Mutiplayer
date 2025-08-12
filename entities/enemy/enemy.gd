@@ -1,26 +1,21 @@
 class_name Enemy
 extends CharacterBody2D
 
-@onready var area_2d: Area2D = $Area2D
 @onready var target_acquisition_timer: Timer = $TargetAcquisitionTimer
 @onready var health_component: HealthComponent = $HealthComponent
 
 var target_position: Vector2
 
 func _ready() -> void:
-    area_2d.area_entered.connect(_on_area_entered)
     target_acquisition_timer.timeout.connect(_on_target_acquisition_timer_timeout)
     if is_multiplayer_authority():
-        health_component.died.connect(_on_health_component_died)
+        health_component.died.connect(_on_died)
         acquire_target()
 
 func _process(_delta: float) -> void:
     if is_multiplayer_authority():
         velocity = global_position.direction_to(target_position) * 40
         move_and_slide()
-
-func handle_hit() -> void:
-    health_component.damage(1)
 
 func acquire_target() -> void:
     var players = get_tree().get_nodes_in_group("player")
@@ -41,18 +36,10 @@ func acquire_target() -> void:
     if nearest_player != null:
         target_position = nearest_player.global_position
 
-func _on_area_entered(area: Area2D) -> void:
-    if !is_multiplayer_authority():
-        return
-    
-    if area.owner is Bullet:
-        var bullet = area.owner as Bullet
-        bullet.register_collision()
-        handle_hit()
-
 func _on_target_acquisition_timer_timeout() -> void:
     if is_multiplayer_authority():
         acquire_target()
 
-func _on_health_component_died() -> void:
+func _on_died() -> void:
+    GameEvents.emit_enemy_died()
     queue_free()
