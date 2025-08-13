@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://bpwfgkjf2kihj"]
+[gd_scene load_steps=7 format=3 uid="uid://bpwfgkjf2kihj"]
 
 [ext_resource type="Script" uid="uid://cwf2l7rp25pib" path="res://main.gd" id="1_0xm2m"]
 [ext_resource type="Texture2D" uid="uid://qyv2xhulqyws" path="res://assets/arena.png" id="2_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://b04ycqrbv7stm" path="res://manager/EnemyManager.tscn" id="2_h2yge"]
+[ext_resource type="PackedScene" uid="uid://0twxrdsocnyd" path="res://ui/game_ui/game_ui.tscn" id="4_1bvp3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0xm2m"]
 size = Vector2(32, 300)
@@ -20,6 +21,9 @@ spawn_rect = NodePath("../SpawnRect")
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("uid://b0cv4kf3ow4ae", "uid://cs3uxguww5dtr")
 spawn_path = NodePath("../YSortRoot")
+
+[node name="GameUI" parent="." node_paths=PackedStringArray("enemy_manager") instance=ExtResource("4_1bvp3")]
+enemy_manager = NodePath("../EnemyManager")
 
 [node name="SpawnRect" type="ReferenceRect" parent="."]
 custom_minimum_size = Vector2(414, 216)
