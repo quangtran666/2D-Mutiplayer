@@ -136,3 +136,18 @@ position = Vector2(18, -1)
 visible = false
 position = Vector2(0, -10)
 shape = SubResource("CircleShape2D_sfv1e")
+
+[node name="DisplayNameLabel" type="Label" parent="."]
+custom_minimum_size = Vector2(128, 0)
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -64.0
+offset_top = 4.0
+offset_right = 64.0
+offset_bottom = 20.0
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+text = "Display Name"
+horizontal_alignment = 1

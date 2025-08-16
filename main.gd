@@ -15,6 +15,7 @@ const MAIN_MENU_SCENE_PATH: String = "res://ui/main_menu/main_menu.tscn"
 
 var dead_peers: Array[int] = []
 var player_dictionary: Dictionary[int, Player] = {}
+var player_name_dictionary: Dictionary[int, String] = {}
 
 func _ready() -> void:
 	background_effects = _background_effects
@@ -22,6 +23,7 @@ func _ready() -> void:
 
 	multiplayer_spawner.spawn_function = func (data: Variant) -> Node:
 		var player := player_scene.instantiate() as Player
+		player.set_display_name(data.display_name)
 		player.name = str(data.peer_id)
 		player.input_multiplayer_authority = data.peer_id
 		player.global_position = player_spawn_position.global_position
@@ -32,7 +34,7 @@ func _ready() -> void:
 		player_dictionary[data.peer_id] = player
 		return player
 
-	peer_ready.rpc_id(1)
+	peer_ready.rpc_id(1, MultiplayerConfig.display_name)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 	if is_multiplayer_authority():
 		enemy_manager.round_completed.connect(_on_round_completed)
@@ -40,9 +42,10 @@ func _ready() -> void:
 		multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 
 @rpc("any_peer", "call_local", "reliable")
-func peer_ready() -> void:
+func peer_ready(display_name: String) -> void:
 	var sender_id := multiplayer.get_remote_sender_id()
-	multiplayer_spawner.spawn({ "peer_id": sender_id })
+	player_name_dictionary[sender_id] = display_name
+	multiplayer_spawner.spawn({ "peer_id": sender_id, "display_name": player_name_dictionary[sender_id] })
 	enemy_manager.synchronize(sender_id)
 
 func respawn_dead_peers() -> void:
@@ -50,7 +53,7 @@ func respawn_dead_peers() -> void:
 	for peer_id in dead_peers:
 		if !all_peers.has(peer_id):
 			continue
-		multiplayer_spawner.spawn({ "peer_id": peer_id })
+		multiplayer_spawner.spawn({ "peer_id": peer_id, "display_name": player_name_dictionary[peer_id] })
 	dead_peers.clear()
 
 func end_game() -> void:
