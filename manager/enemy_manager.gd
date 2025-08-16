@@ -3,11 +3,13 @@ extends Node
 
 signal round_changed(round_number: int)
 signal round_completed
+signal game_complete
 
 const ROUND_BASE_TIME: int = 10
 const ROUND_GROWTH: int = 5
 const BASE_ENEMY_SPAWN_TIME: float = 2
 const ENEMY_SPAWN_TIME_GROWTH: float = -0.15
+const MAX_ROUNDS: int = 1
 
 @export var enemy_scene: PackedScene
 @export var enemy_spawn_root: Node
@@ -76,7 +78,15 @@ func check_round_completed() -> void:
     
     if spawned_enemies == 0:
         round_completed.emit()
-        begin_round()
+
+        if round_count == MAX_ROUNDS:
+            complete_game()
+        else:
+            begin_round()
+
+func complete_game() -> void:
+    await get_tree().create_timer(2).timeout
+    game_complete.emit()
 
 func get_random_spawn_position() -> Vector2:
     var x = randf_range(0, spawn_rect.size.x)

@@ -8,6 +8,10 @@ extends CharacterBody2D
 @onready var charge_attack_timer: Timer = $ChargeAttackTimer
 @onready var hit_box_collision_shape: CollisionShape2D = %HitBoxCollisionShape
 @onready var alert_sprite: Sprite2D = $AlertSprite
+@onready var hurt_box_component: HurtBoxComponent = $HurtBoxComponent
+
+var hit_particles: PackedScene = preload("res://effects/enemy_impact_particles/enemy_impact_particles.tscn")
+var ground_particles: PackedScene = preload("res://effects/enemy_ground_particles/enemy_ground_particles.tscn")
 
 var target_position: Vector2
 var state_machine: CallableStateMachine = CallableStateMachine.new()
@@ -53,6 +57,7 @@ func _ready() -> void:
     if is_multiplayer_authority():
         health_component.died.connect(_on_died)
         state_machine.set_initial_state(state_spawn)
+        hurt_box_component.hit_by_hitbox.connect(_on_hit_by_hitbox)
 
 func _process(_delta: float) -> void:
     state_machine.update()
@@ -161,6 +166,26 @@ func acquire_target() -> void:
     if nearest_player != null:
         target_position = nearest_player.global_position
 
+@rpc("authority", "call_local", "unreliable")
+func spawn_hit_particles() -> void:
+    var particles: Node2D = hit_particles.instantiate()
+    particles.global_position = hurt_box_component.global_position
+    get_parent().add_child(particles)
+
+@rpc("authority", "call_local", "unreliable")
+func spawn_death_particles() -> void:
+    var particles: Node2D = ground_particles.instantiate()
+
+    var background_node: Node = Main.background_mask
+    if !is_instance_valid(background_node):
+        background_node = get_parent()
+    background_node.add_child(particles)
+    particles.global_position = global_position
+
 func _on_died() -> void:
+    spawn_death_particles.rpc()
     GameEvents.emit_enemy_died()
     queue_free()
+
+func _on_hit_by_hitbox() -> void:
+    spawn_hit_particles.rpc()

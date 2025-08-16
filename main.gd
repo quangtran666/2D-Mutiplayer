@@ -1,4 +1,8 @@
+class_name Main
 extends Node
+
+static var background_effects: Node2D
+static var background_mask: Sprite2D
 
 var player_scene: PackedScene = preload("res://entities/player/player.tscn")
 const MAIN_MENU_SCENE_PATH: String = "res://ui/main_menu/main_menu.tscn"
@@ -6,11 +10,16 @@ const MAIN_MENU_SCENE_PATH: String = "res://ui/main_menu/main_menu.tscn"
 @onready var multiplayer_spawner: MultiplayerSpawner = $MultiplayerSpawner
 @onready var player_spawn_position: Marker2D = $PlayerSpawnPosition
 @onready var enemy_manager: EnemyManager = $EnemyManager
+@onready var _background_effects: Node2D = $BackgroundEffects
+@onready var _background_mask: Sprite2D = %BackgroundMask
 
 var dead_peers: Array[int] = []
 var player_dictionary: Dictionary[int, Player] = {}
 
 func _ready() -> void:
+	background_effects = _background_effects
+	background_mask = _background_mask
+
 	multiplayer_spawner.spawn_function = func (data: Variant) -> Node:
 		var player := player_scene.instantiate() as Player
 		player.name = str(data.peer_id)
@@ -24,9 +33,10 @@ func _ready() -> void:
 		return player
 
 	peer_ready.rpc_id(1)
-	enemy_manager.round_completed.connect(_on_round_completed)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 	if is_multiplayer_authority():
+		enemy_manager.round_completed.connect(_on_round_completed)
+		enemy_manager.game_complete.connect(_on_game_complete)
 		multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 
 @rpc("any_peer", "call_local", "reliable")
@@ -79,3 +89,6 @@ func _on_peer_disconnected(peer_id: int) -> void:
 		if is_instance_valid(player):
 			player_dictionary[peer_id].kill()
 		player_dictionary.erase(peer_id)
+
+func _on_game_complete() -> void:
+	end_game()

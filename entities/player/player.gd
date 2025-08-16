@@ -62,6 +62,9 @@ func play_fire_effects() -> void:
     muzzle_flash.rotation = barrel_position.global_rotation
     get_parent().add_child(muzzle_flash)
 
+    if player_input_synchronizer_component.is_multiplayer_authority():
+        GameCamera.shake(1)
+
 func kill():
     if !is_multiplayer_authority():
         push_error("Cannot call kill on non-server client")
