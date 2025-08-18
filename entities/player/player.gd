@@ -16,13 +16,19 @@ var bullet_scene: PackedScene = preload("res://entities/bullet/bullet.tscn")
 var muzzle_flash_scene: PackedScene = preload("res://effects/muzzle_flash/muzzle_flash.tscn")
 var input_multiplayer_authority: int
 var is_dying: bool = false
+var is_respawn: bool = false
 var display_name: String
 
 func _ready() -> void:
     player_input_synchronizer_component.set_multiplayer_authority(input_multiplayer_authority)
-    display_name_label.text = display_name
+    if multiplayer.multiplayer_peer is OfflineMultiplayerPeer or player_input_synchronizer_component.is_multiplayer_authority():
+        display_name_label.visible = false
+    else:
+        display_name_label.text = display_name
     
     if is_multiplayer_authority():
+        if is_respawn:
+            health_component.current_health = 1
         health_component.died.connect(_on_died)
 
 func _process(_delta: float) -> void:
