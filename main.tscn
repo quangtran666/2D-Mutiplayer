@@ -1,8 +1,9 @@
-[gd_scene load_steps=10 format=3 uid="uid://bpwfgkjf2kihj"]
+[gd_scene load_steps=11 format=3 uid="uid://bpwfgkjf2kihj"]
 
 [ext_resource type="Script" uid="uid://cwf2l7rp25pib" path="res://main.gd" id="1_0xm2m"]
 [ext_resource type="Texture2D" uid="uid://qyv2xhulqyws" path="res://assets/arena.png" id="2_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://b04ycqrbv7stm" path="res://manager/EnemyManager.tscn" id="2_h2yge"]
+[ext_resource type="PackedScene" uid="uid://dba83qm4agpmh" path="res://manager/lobby_manager.tscn" id="3_5vw27"]
 [ext_resource type="PackedScene" uid="uid://0twxrdsocnyd" path="res://ui/game_ui/game_ui.tscn" id="4_1bvp3"]
 [ext_resource type="PackedScene" uid="uid://irp6gbeeqbfg" path="res://ui/pause_menu/pause_menu.tscn" id="4_272bh"]
 [ext_resource type="Texture2D" uid="uid://deihlbr6r5b5" path="res://assets/clip_mask.png" id="5_lquwl"]
@@ -21,12 +22,15 @@ script = ExtResource("1_0xm2m")
 enemy_spawn_root = NodePath("../YSortRoot")
 spawn_rect = NodePath("../SpawnRect")
 
+[node name="LobbyManager" parent="." instance=ExtResource("3_5vw27")]
+
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("uid://b0cv4kf3ow4ae", "uid://cs3uxguww5dtr")
 spawn_path = NodePath("../YSortRoot")
 
-[node name="GameUI" parent="." node_paths=PackedStringArray("enemy_manager") instance=ExtResource("4_1bvp3")]
+[node name="GameUI" parent="." node_paths=PackedStringArray("enemy_manager", "lobby_manager") instance=ExtResource("4_1bvp3")]
 enemy_manager = NodePath("../EnemyManager")
+lobby_manager = NodePath("../LobbyManager")
 
 [node name="PauseMenu" parent="." instance=ExtResource("4_272bh")]
 visible = false

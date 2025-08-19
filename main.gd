@@ -14,6 +14,7 @@ const MAIN_MENU_SCENE_PATH: String = "res://ui/main_menu/main_menu.tscn"
 @onready var _background_mask: Sprite2D = %BackgroundMask
 @onready var game_ui: GameUI = $GameUI
 @onready var pause_menu: PauseMenu = $PauseMenu
+@onready var lobby_manager: LobbyManager = $LobbyManager
 
 var dead_peers: Array[int] = []
 var player_dictionary: Dictionary[int, Player] = {}
@@ -43,6 +44,7 @@ func _ready() -> void:
 
 	peer_ready.rpc_id(1, MultiplayerConfig.display_name)
 	pause_menu.quit_requested.connect(_on_quit_requested)
+	lobby_manager.all_peers_ready.connect(_on_all_peers_ready)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 	if is_multiplayer_authority():
 		enemy_manager.round_completed.connect(_on_round_completed)
@@ -115,3 +117,7 @@ func _on_game_complete() -> void:
 
 func _on_quit_requested() -> void:
 	end_game()
+
+func _on_all_peers_ready() -> void:
+	lobby_manager.close_lobby()
+	enemy_manager.start()
