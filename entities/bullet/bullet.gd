@@ -8,8 +8,10 @@ const SPEED: int = 600
 
 var direction: Vector2
 var source_peer_id: int
+var damage: int = 1
 
 func _ready() -> void:
+    hitbox_component.damage = damage
     hitbox_component.source_peer_id = source_peer_id
     life_timer.timeout.connect(_on_life_timer_timeout)
     hitbox_component.hit_hurtbox.connect(_on_hit_hurtbox)

@@ -10,7 +10,7 @@ size = Vector2(16, 16)
 [sub_resource type="CircleShape2D" id="CircleShape2D_mdpbk"]
 radius = 8.0
 
-[node name="UpgradeOption" type="Node2D"]
+[node name="UpgradeOption" type="Node2D" groups=["upgrade_option"]]
 script = ExtResource("1_yuvji")
 
 [node name="HealthComponent" type="Node" parent="."]
