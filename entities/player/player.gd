@@ -15,6 +15,7 @@ const BASE_BULLET_DAMAGE: int = 1
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var barrel_position: Marker2D = %BarrelPosition
 @onready var display_name_label: Label = $DisplayNameLabel
+@onready var activation_area_collision_shape: CollisionShape2D = %ActivationAreaCollisionShape
 
 var bullet_scene: PackedScene = preload("res://entities/bullet/bullet.tscn")
 var muzzle_flash_scene: PackedScene = preload("res://effects/muzzle_flash/muzzle_flash.tscn")
@@ -25,6 +26,7 @@ var display_name: String
 
 func _ready() -> void:
     player_input_synchronizer_component.set_multiplayer_authority(input_multiplayer_authority)
+    activation_area_collision_shape.disabled = !player_input_synchronizer_component.is_multiplayer_authority()
     if multiplayer.multiplayer_peer is OfflineMultiplayerPeer or player_input_synchronizer_component.is_multiplayer_authority():
         display_name_label.visible = false
     else:

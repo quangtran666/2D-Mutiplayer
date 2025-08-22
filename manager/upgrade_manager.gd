@@ -66,8 +66,8 @@ func generate_upgrade_options() -> void:
 
 func create_upgrade_option_nodes(upgrade_resources: Array[UpgradeResource]) -> Array[UpgradeOption]:
     var result: Array[UpgradeOption] = []
-    var initial_x = -64;
-    var x_difference = 64
+    var initial_x = -96
+    var x_difference = 96
 
     for i in range(upgrade_resources.size()):
         var upgrade_option: UpgradeOption = upgrade_option_scene.instantiate()
@@ -76,6 +76,7 @@ func create_upgrade_option_nodes(upgrade_resources: Array[UpgradeResource]) -> A
         upgrade_option.global_position = spawn_position.global_position
         upgrade_option.global_position += Vector2.RIGHT * (initial_x + (i * x_difference))
         spawn_root.add_child(upgrade_option)
+        upgrade_option.play_in(i * .1)
         upgrade_option.selected.connect(_on_upgrade_option_selected)
         result.append(upgrade_option)
         
