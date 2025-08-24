@@ -24,6 +24,7 @@ func start(_direction: Vector2) -> void:
     rotation = direction.angle()
 
 func register_collision() -> void:
+    hitbox_component.is_hit_handled = true
     queue_free()
 
 func _on_life_timer_timeout() -> void:

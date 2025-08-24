@@ -9,6 +9,8 @@ extends CharacterBody2D
 @onready var hit_box_collision_shape: CollisionShape2D = %HitBoxCollisionShape
 @onready var alert_sprite: Sprite2D = $AlertSprite
 @onready var hurt_box_component: HurtBoxComponent = $HurtBoxComponent
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
+@onready var hit_stream_player: AudioStreamPlayer = $HitStreamPlayer
 
 var hit_particles: PackedScene = preload("res://effects/enemy_impact_particles/enemy_impact_particles.tscn")
 var ground_particles: PackedScene = preload("res://effects/enemy_ground_particles/enemy_ground_particles.tscn")
@@ -35,7 +37,7 @@ func _notification(what: int) -> void:
         state_machine.add_states(
             state_normal,
             enter_state_normal,
-            Callable()
+            leave_state_normal
         )
         state_machine.add_states(
             state_charge_attack,
@@ -78,6 +80,7 @@ func state_spawn() -> void:
     pass
 
 func enter_state_normal() -> void:
+    animation_player.play("run")
     if is_multiplayer_authority():
         acquire_target()
         target_acquisition_timer.start()
@@ -90,9 +93,13 @@ func state_normal() -> void:
             acquire_target()
             target_acquisition_timer.start()
 
-        if attackcooldown_timer.is_stopped() and global_position.distance_to(target_position) < 150:
+        var can_attack := attackcooldown_timer.is_stopped() or global_position.distance_to(target_position) < 16
+        if can_attack and global_position.distance_to(target_position) < 150:
             state_machine.change_state(state_charge_attack)
     flip()
+
+func leave_state_normal() -> void:
+    animation_player.play("RESET")
 
 func enter_state_charge_attack() -> void:
     if is_multiplayer_authority():
@@ -167,7 +174,8 @@ func acquire_target() -> void:
         target_position = nearest_player.global_position
 
 @rpc("authority", "call_local", "unreliable")
-func spawn_hit_particles() -> void:
+func spawn_hit_effects() -> void:
+    hit_stream_player.play()
     var particles: Node2D = hit_particles.instantiate()
     particles.global_position = hurt_box_component.global_position
     get_parent().add_child(particles)
@@ -188,4 +196,4 @@ func _on_died() -> void:
     queue_free()
 
 func _on_hit_by_hitbox() -> void:
-    spawn_hit_particles.rpc()
+    spawn_hit_effects.rpc()

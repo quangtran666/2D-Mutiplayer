@@ -14,6 +14,7 @@ var ground_particles: PackedScene = preload("res://effects/enemy_ground_particle
 @onready var info_container: VBoxContainer = $InfoContainer
 @onready var title_label: Label = %TitleLabel
 @onready var description_label: Label = %DescriptionLabel
+@onready var hit_stream_player: AudioStreamPlayer = $HitStreamPlayer
 
 var peer_id_filter: int = -1
 var upgrade_index: int
@@ -78,7 +79,8 @@ func despawn() -> void:
     animation_player.play("despawn")
 
 @rpc("authority", "call_local")
-func spawn_hit_particles() -> void:
+func spawn_hit_effects() -> void:
+    hit_stream_player.play()
     var particles: Node2D = hit_particles.instantiate()
     particles.global_position = hurt_box_component.global_position
     get_parent().add_child(particles)
@@ -105,7 +107,7 @@ func _on_peer_disconnected(peer_id: int) -> void:
         despawn()
     
 func _on_hit_by_hitbox() -> void:
-    spawn_hit_particles.rpc_id(peer_id_filter)
+    spawn_hit_effects.rpc_id(peer_id_filter)
 
 func _on_player_detection_area_entered(_other_area: Area2D) -> void:
     info_container.visible = true
